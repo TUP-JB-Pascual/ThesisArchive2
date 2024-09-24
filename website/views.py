@@ -1,24 +1,29 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.shortcuts import render
+from django.views import generic
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.urls import reverse_lazy
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 from .forms import ThesisForm
 from .models import Thesis
 
-class HomePageView(ListView):
+def home(request):
+    context = {}
+    return render(request, 'home.html', context)
+
+class HomePageView(generic.ListView):
     model = Thesis
     template_name = 'home.html'
 
-class ThesisPublishView(CreateView):
+class ThesisPublishView(generic.CreateView):
     model = Thesis
     template_name = 'thesis_publish.html'
     form_class = ThesisForm
     #messages.success(request, "Upload Successful.")
 
-class ThesisListView(ListView):
+class ThesisListView(generic.ListView):
     model = Thesis
     template_name = 'thesis_list.html'
 
@@ -27,16 +32,16 @@ class XFrameOptionsExemptMixin:
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-class ThesisDetailView(XFrameOptionsExemptMixin, DetailView):
+class ThesisDetailView(XFrameOptionsExemptMixin, generic.DetailView):
     model = Thesis
     template_name = 'thesis_detail.html'
     
-class ThesisUpdateView(UpdateView):
+class ThesisUpdateView(generic.UpdateView):
     model = Thesis
     template_name = 'thesis_update.html'
     form_class = ThesisForm
     
-class ThesisDeleteView(DeleteView):
+class ThesisDeleteView(generic.DeleteView):
     model = Thesis
     template_name = 'thesis_delete.html'
     success_url = reverse_lazy('thesis_list')

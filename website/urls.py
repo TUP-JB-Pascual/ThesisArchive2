@@ -1,7 +1,5 @@
-from django.contrib import admin
 from django.urls import path
 from . import views
-from .views import ThesisListView, ThesisDetailView, ThesisPublishView, ThesisUpdateView, ThesisDeleteView
 
 #USE ONLY ON DEVELOPMENT
 from django.conf import settings
@@ -10,12 +8,12 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('publish_thesis/', ThesisPublishView.as_view(), name='thesis_publish'),
-    path('thesis_list/', ThesisListView.as_view(), name='thesis_list'),
-    path('thesis/<int:pk>', ThesisDetailView.as_view(), name='thesis_detail'),
-    path('thesis/update/<int:pk>', ThesisUpdateView.as_view(), name='thesis_update'),
-    path('thesis/<int:pk>/delete', ThesisDeleteView.as_view(), name='thesis_delete'),
+    path('', views.HomePageView.as_view(), name='home'),
+    path('publish_thesis/', views.ThesisPublishView.as_view(), name='thesis_publish'),
+    path('thesis_list/', views.ThesisListView.as_view(), name='thesis_list'),
+    path('thesis/<int:pk>', views.ThesisDetailView.as_view(), name='thesis_detail'),
+    path('thesis/update/<int:pk>', views.ThesisUpdateView.as_view(), name='thesis_update'),
+    path('thesis/<int:pk>/delete', views.ThesisDeleteView.as_view(), name='thesis_delete'),
 ]
 
 #USE ONLY ON DEVELOPMENT

@@ -8,7 +8,10 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="nav-link" type="submit">Logout</button>
+            </form>
           </li>
           <li class="nav-item"></li>
             <a class="nav-link" href="{% url 'thesis_list' %}">Thesis List</a>
@@ -18,7 +21,7 @@
           </li>
           {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Register</a>
+            <a class="nav-link" href="{% url 'user_registration' %}">Register</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'login' %}">Login</a>
