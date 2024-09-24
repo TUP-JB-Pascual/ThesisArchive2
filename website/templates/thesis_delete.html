@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <a href="{% url 'thesis_list' %}" class="btn btn-secondary">Back</a>
+        <h1>Delete Thesis</h1>
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <h4>Delete - {{ thesis.title }} by {{ thesis.author }} published on {{ thesis.published_date }}</h4>
+            <strong>Are you sure?</strong>
+            
+            <button type="submit" name="delete_thesis" class="btn btn-danger">Yes</button>
+            <a href="{% url 'thesis_list' %}" class="btn btn-primary">No</a>
+        </form>
+    </div>
+{% endblock %}

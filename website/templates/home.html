@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        {% if user.is_authenticated %}
+        <h1>Welcome</h1>
+
+        {% else %}
+        <h1> Thesis Archive Management System of the Technological University of the Philippines - Cavite </h1>
+        {% endif %}
+    </div>
+    
+{% endblock %}

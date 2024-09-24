@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <a href="{% url 'thesis_list' %}" class="btn btn-danger btn-sm">Back</a>
+        <h1>Thesis View</h1>
+        <p>{{ thesis.title }}</p>
+        <small>by: {{ thesis.author }} </small>
+        <br>
+        <a href="{% url 'thesis_update' thesis.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        <a href="{% url 'thesis_delete' thesis.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        <hr>
+        <embed src="{% get_media_prefix %}{{ thesis.pdf_file}}" type="application/pdf" style="width: 100%;min-height: 500px;border: none;"></embed>
+    </div>
+{% endblock %}
