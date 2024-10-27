@@ -3,8 +3,8 @@
 {% block content %}
     <div class="col-md-6 offset-md-3">
         <h1>Publish Thesis</h1>
-        <a href="{% url 'thesis_list' %}" class="btn btn-danger btn-sm">Back</a>
-        <form method="POST" action="" enctype="multipart/form-data">
+        
+        <form method="POST" action="" enctype="multipart/form-data" id="publishForm" name="publishForm">
             {% csrf_token %}
             {% if form.errors %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -18,7 +18,16 @@
                 </div>
             {% endif %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-secondary">Publish</button>
+            <button type="submit" class="btn btn-secondary" id="publish" name="publish">Publish</button>
+            <a href="{% url 'thesis_list' %}" class="btn btn-danger">Back</a>
         </form>
+        
     </div>
+
+    <script>
+        $('#publishForm').on('submit', function() {
+            $('#author').prop('disabled', false);
+        });
+    </script>
 {% endblock %}
+

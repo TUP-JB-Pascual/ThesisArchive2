@@ -23,6 +23,16 @@ class ThesisPublishView(generic.CreateView):
     form_class = ThesisForm
     #messages.success(request, "Upload Successful.")
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.save()
+        return super().form_valid(form)
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['author'] = self.request.user.id
+        return initial
+
 class ThesisListView(generic.ListView):
     model = Thesis
     template_name = 'thesis_list.html'

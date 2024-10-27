@@ -1,0 +1,16 @@
+.embed-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 10px;
+    
+    /* Just for demonstration, remove this part */
+    opacity: 0.1;
+    background-color: red;
+}
+  
+.wrapper {
+    position: relative;
+    overflow: hidden;
+}
