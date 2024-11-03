@@ -5,7 +5,7 @@ from django.urls import reverse
 import os
 import pymupdf
 from django.db import transaction
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, pre_delete, post_save, pre_save
 from django.dispatch import receiver
 
 def rename_pdf(instance, filename):
@@ -28,7 +28,13 @@ class Thesis(models.Model):
     
     def get_absolute_url(self):
         return reverse('thesis_detail', kwargs= {'pk': self.id})
-
+'''
+@receiver(pre_save, sender=Thesis)
+def get_current_pdf(sender, instance, *args, **kwargs):
+    print("pre save")
+    print(instance.pdf_file.name)
+    print(instance.title)
+'''
 
 @receiver(post_save, sender=Thesis)
 def create_extra_pdf(sender, instance, created, *args, **kwargs):
@@ -60,7 +66,6 @@ def create_extra_pdf(sender, instance, created, *args, **kwargs):
 
 @receiver(post_delete, sender=Thesis)
 def delete_extra_pdf(sender, instance, *args, **kwargs):
-    print("call delete")
     pdf_name = 'media/' + instance.pdf_file.name
     print(pdf_name)
     # FOR ABSTRACT

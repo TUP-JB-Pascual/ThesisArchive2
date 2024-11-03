@@ -7,7 +7,7 @@ class ThesisForm(forms.ModelForm):
         fields = ['published_date', 'title', 'author', 'pdf_file']
         widgets = {
             'published_date': forms.DateInput(attrs={'type': 'date'}),
-            #'author': forms.HiddenInput(),
+            'author': forms.HiddenInput(),
         }
     
     def __init__(self, *args, **kwargs):
@@ -18,11 +18,12 @@ class ThesisForm(forms.ModelForm):
 
         self.fields['title'].widget.attrs['class'] = 'form-control'
         self.fields['title'].widget.attrs['placeholder'] = 'Title'
+        self.fields['title'].widget.attrs['rows'] = '5'
+        self.fields['title'].widget.attrs['style'] = 'resize:none'
         self.fields['title'].label = 'Title:'
 
         self.fields['author'].widget.attrs['class'] = 'form-control'
         self.fields['author'].widget.attrs['placeholder'] = 'Author'
-        self.fields['author'].widget.attrs['disabled'] = 'disabled'
         self.fields['author'].widget.attrs['id'] = 'author'
         #self.fields['author'].widget.attrs['readonly'] = 'readonly'
         self.fields['author'].label = 'Author:'
@@ -30,4 +31,3 @@ class ThesisForm(forms.ModelForm):
         self.fields['pdf_file'].widget.attrs['class'] = 'form-control'
         self.fields['pdf_file'].widget.attrs['placeholder'] = 'PDF'
         self.fields['pdf_file'].label = 'Thesis PDF File:'
-

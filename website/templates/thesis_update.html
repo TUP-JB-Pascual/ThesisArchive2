@@ -4,7 +4,7 @@
     <div class="col-md-6 offset-md-3">
         <a href="{% url 'thesis_list' %}" class="btn btn-danger">Back</a>
         <h1>Update Thesis</h1>        
-        <form method="POST" action="" enctype="multipart/form-data">
+        <form method="POST" action="" enctype="multipart/form-data" id="publishForm" name="publishForm">
             {% csrf_token %}
             {% if form.errors %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -17,10 +17,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endif %}
-            <p>{{ form.published_date.label}} {{ form.published_date}}</p>
-            <p>{{ form.title.label}} {{ form.title}}</p>
-            <p>{{ form.author.label}} {{ form.author}}</p>
-            <p>{{ form.pdf_file.label}} <br> {{ form.pdf_file}}</p>
+            {{ form.as_p }}
 
             <button type="submit" name="update_thesis" class="btn btn-secondary">Update</button>
         </form>
