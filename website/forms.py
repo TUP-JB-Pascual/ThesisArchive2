@@ -1,4 +1,4 @@
-from .models import Thesis
+from .models import Thesis, TempURL
 from django import forms
 
 class ThesisForm(forms.ModelForm):
@@ -31,3 +31,22 @@ class ThesisForm(forms.ModelForm):
         self.fields['pdf_file'].widget.attrs['class'] = 'form-control'
         self.fields['pdf_file'].widget.attrs['placeholder'] = 'PDF'
         self.fields['pdf_file'].label = 'Thesis PDF File:'
+
+class RequestForm(forms.ModelForm):
+    class Meta:
+        model = TempURL
+        fields = ['email', 'first_name', 'last_name']
+        
+    def __init__(self, *args, **kwargs):
+        super(RequestForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['class'] = 'form-control'
+        self.fields['email'].widget.attrs['placeholder'] = 'Email'
+        self.fields['email'].label = 'Email:'
+
+        self.fields['first_name'].widget.attrs['class'] = 'form-control'
+        self.fields['first_name'].widget.attrs['placeholder'] = 'First Name'
+        self.fields['first_name'].label = 'First Name:'
+        
+        self.fields['last_name'].widget.attrs['class'] = 'form-control'
+        self.fields['last_name'].widget.attrs['placeholder'] = 'Last Name'
+        self.fields['last_name'].label = 'Last Name:'

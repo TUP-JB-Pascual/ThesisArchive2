@@ -7,6 +7,8 @@ import pymupdf
 from django.db import transaction
 from django.db.models.signals import post_delete, pre_delete, post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
+from datetime import timedelta
 
 def rename_pdf(instance, filename):
     ext = filename.split('.')[-1]
@@ -20,21 +22,14 @@ class Thesis(models.Model):
     title = models.TextField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     pdf_file = models.FileField(upload_to=rename_pdf, max_length=256)
-
-    # visits = models.IntegerField(default=0)
+    visits = models.IntegerField(default=0)
+    downloads = models.IntegerField(default=0)
 
     def __str__(self):
         return(f"{self.title} by {self.author}")
     
     def get_absolute_url(self):
         return reverse('thesis_detail', kwargs= {'pk': self.id})
-'''
-@receiver(pre_save, sender=Thesis)
-def get_current_pdf(sender, instance, *args, **kwargs):
-    print("pre save")
-    print(instance.pdf_file.name)
-    print(instance.title)
-'''
 
 @receiver(post_save, sender=Thesis)
 def create_extra_pdf(sender, instance, created, *args, **kwargs):
@@ -82,3 +77,19 @@ def delete_extra_pdf(sender, instance, *args, **kwargs):
         os.remove(water_pdf_name)
         print(water_pdf_name, " has been deleted.")
 
+class TempURL(models.Model):
+    url_key = models.CharField(max_length=100, unique=True)
+    title = models.TextField(max_length=255)
+    pdf_file = models.FileField(upload_to='temporary_pdfs/')
+    request_date = models.DateField(auto_now_add=True)
+    expiration_date = models.DateTimeField()
+    email = models.EmailField()
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def is_expired(self):
+        """Check if the URL has expired."""
+        return timezone.now() > self.expiration_date
+
+    def __str__(self):
+        return f"PDF File: {self.pdf_file.name} (Expires: {self.expiration_date})"

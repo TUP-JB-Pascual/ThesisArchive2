@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <a href="{% url 'thesis_list' %}" class="btn btn-secondary">Back</a>
+        <h1>Request to Download Thesis</h1>
+        <hr>
+        <h4>{{ thesis.title }} </h4>
+        <small>by {{ thesis.author.first_name }} {{ thesis.author.last_name }} published on {{ thesis.published_date }}</small>
+        <hr>
+        <form method="POST" action="">
+            
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Form Error
+                    {% for field in form %}
+                        {% if field.errors %}
+                            {{ field.errors }}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            {{ form.as_p }}
+            <button type="submit" name="generate_temp_url" class="btn btn-danger">Submit</button>
+        </form>
+    </div>
+{% endblock %}

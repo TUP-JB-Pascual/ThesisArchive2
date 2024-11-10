@@ -1,0 +1,17 @@
+<!-- generate_pdf_url.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporary PDF URL Generated</title>
+</head>
+<body>
+    <h1>Your Temporary PDF URL</h1>
+    <p>Here is your temporary PDF URL, which will expire in 3 days:</p>
+    <p><a href="{{ temp_url }}" target="_blank">{{ temp_url }}</a></p>
+    <p>{{ pdf_file.url_key }}</p>
+    <p>{{ pdf_file.pdf_file }}</p>
+    <p>{{ pdf_file.expiration_date }}</p>
+</body>
+</html>

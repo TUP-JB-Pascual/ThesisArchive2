@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3" oncontextmenu="return false">
+        <a href="{% url 'request_list' %}" class="btn btn-secondary">Back</a>
+        <br>
+        <hr>
+        <h3>{{ thesis_request.title }}</h3>
+        <small>
+            Email: {{ thesis_request.email }} <br>
+            Requested by: {{ thesis_request.first_name }} {{ thesis_request.last_name }} <br>
+            on {{ thesis_request.request_date }}
+        </small>
+        <br>
+        <hr>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Accept</button>
+            <a href="{% url 'request_reject' thesis_request.pk %}" class="btn btn-danger">Reject</a>
+        </form>
+    </div>
+{% endblock %}

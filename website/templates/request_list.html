@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <h1>Thesis Request List</h1>
+        <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Petitioner</th>
+                    <th>Email</th>
+                    <th>Request Date</th>
+                    <th>Decision</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in request_list %}
+                    <tr>
+                        <td>{{ request.title }}</td>
+                        <td>{{ request.first_name }} {{ request.last_name }}</td>
+                        <td>{{ request.email }}</td>
+                        <td>{{ request.request_date }}</td>
+                        <td>
+                            <a href="{% url 'request_view' request.pk %}" class="btn btn-primary btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+{% endblock %}

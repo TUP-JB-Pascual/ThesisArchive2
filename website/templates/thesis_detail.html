@@ -2,22 +2,33 @@
 {% load static %}
 
 {% block content %}
-    <link rel="stylesheet" href="../static/css/iframe.css">
-
     <div class="col-md-6 offset-md-3" oncontextmenu="return false">
         <a href="{% url 'thesis_list' %}" class="btn btn-danger">Back</a>
-        <h1>Thesis View</h1>
-        <p>{{ thesis.title }}</p>
-        <small>by: {{ thesis.author }} </small>
         <br>
-        {% if user.id == thesis.author.id %}
+        <hr>
+        <h3>{{ thesis.title }}</h3>
+        <small>by: {{ thesis.author.first_name }} {{ thesis.author.last_name }}</small>
+        <br>
+        <small>Visited by {{ thesis.visits }} people</small>
+        <br>
+        <small>Downloaded by {{ thesis.downloads }} people</small>
+        <br>
+        {% if user.id == thesis.author.id or user.is_superuser %}
         <a href="{% url 'thesis_update' thesis.pk %}" class="btn btn-primary">Edit</a>
         <a href="{% url 'thesis_delete' thesis.pk %}" class="btn btn-danger">Delete</a>
         {% endif %}
+        {% if user.is_active %}
+        <a href="{% url 'thesis_download' thesis.pk %}" class="btn btn-success">Download</a>
+        {% else %}
+        <a href="{% url 'thesis_request' thesis.pk %}" class="btn btn-success">Request Download</a>
+        {% endif %}
         <hr>
         <div class="wrapper">
-            <embed src="{% get_media_prefix %}{{ thesis.pdf_file}} #view=FitH&toolbar=0&navpanes=0" type="application/pdf" id="thesis_box" style="width: 100%;min-height: 500px;border: none;"></embed>
-            <div class="embed-cover"></div>
+            {% if user.is_authenticated %}
+            <embed src="{% get_media_prefix %}{{ thesis.pdf_file }} #view=FitH&toolbar=0&navpanes=0" type="application/pdf" id="thesis_box" style="width: 100%;min-height: 500px;border: none;"></embed>
+            {% else %}
+            <embed src="{% get_media_prefix %}{{ abstract_pdf_name }} #view=FitH&toolbar=0&navpanes=0" type="application/pdf" id="thesis_box" style="width: 100%;min-height: 500px;border: none;"></embed>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

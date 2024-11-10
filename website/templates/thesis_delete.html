@@ -7,7 +7,7 @@
         <form method="POST" action="" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <h4>Delete - {{ thesis.title }} by {{ thesis.author }} published on {{ thesis.published_date }}</h4>
+            <h4>Delete - <small>by {{ thesis.author.first_name }} {{ thesis.author.last_name }} published on {{ thesis.published_date }}</small></h4>
             <strong>Are you sure?</strong>
             
             <button type="submit" name="delete_thesis" class="btn btn-danger">Yes</button>

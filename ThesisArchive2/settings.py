@@ -148,3 +148,15 @@ AUTH_USER_MODEL = 'user.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Example of SMTP settings (for production, like Gmail, SendGrid, etc.)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'jerichogianjohn@gmail.com'
+EMAIL_HOST_PASSWORD = 'elnx nysp nhoc lrlc'
+
+DEFAULT_FROM_EMAIL = 'jerichogianjohn@gmail.com'

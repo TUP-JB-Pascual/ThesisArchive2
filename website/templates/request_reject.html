@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <a href="{% url 'request_list' %}" class="btn btn-secondary">Back</a>
+        <h1>Reject Request</h1>
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <h4>Reject the request of <small>{{ thesis_request.first_name }} {{ thesis_request.last_name }} requested on {{ thesis_request.request_date }}</small></h4>
+            <strong>Are you sure?</strong>
+            
+            <button type="submit" name="reject_request" class="btn btn-danger">Yes</button>
+            <a href="{% url 'request_list' %}" class="btn btn-primary">No</a>
+        </form>
+    </div>
+{% endblock %}

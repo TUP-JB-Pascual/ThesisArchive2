@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views import generic
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
@@ -9,10 +9,24 @@ from django.contrib.auth import get_user_model
 import os
 import pymupdf
 
+import random
+import string
+from django.utils import timezone
+from datetime import timedelta
+from django.http import Http404
+from .models import TempURL
+from .forms import RequestForm
+
+from django.http import FileResponse
+from django.conf import settings
+
 User = get_user_model()
 
 from .forms import ThesisForm
 from .models import Thesis
+
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
 
 def home(request):
     context = {}
@@ -51,9 +65,14 @@ class XFrameOptionsExemptMixin:
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-class ThesisDetailView(XFrameOptionsExemptMixin, generic.DetailView):
-    model = Thesis
-    template_name = 'thesis_detail.html'
+def ThesisDetailView(request, pk):
+    thesis = get_object_or_404(Thesis, pk=pk)
+    abstract_pdf_name = thesis.pdf_file.name
+    abstract_pdf_name = abstract_pdf_name.split('.')
+    abstract_pdf_name = abstract_pdf_name[0] + '_abstract.' + abstract_pdf_name[1]
+    thesis.visits += 1
+    thesis.save()
+    return render(request, 'thesis_detail.html', {'thesis': thesis, 'abstract_pdf_name': abstract_pdf_name})
 
 def ThesisUpdateView(request, pk):
     if request.user.is_authenticated:
@@ -114,19 +133,96 @@ def create_update_pdf(pdf_name):
     abstract_pdf_name = abstract_pdf_name[0] + '_abstract.' + abstract_pdf_name[1]
     doc.save(abstract_pdf_name)
 
-'''
-class ThesisUpdateView(LoginRequiredMixin, generic.UpdateView):
-    model = Thesis
-    template_name = 'thesis_update.html'
-    #form_class = ThesisForm
-    form_class = ThesisForm
-    reverse_lazy = 'thesis_list'
-    
-    def post(self, request, *args, **kwargs):
-        print(request.POST)
-        return super().post(request, *args, **kwargs)
-'''
 class ThesisDeleteView(generic.DeleteView):
     model = Thesis
     template_name = 'thesis_delete.html'
     success_url = reverse_lazy('thesis_list')
+
+def generate_random_key(length=32):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+def generate_temp_url(pk, email, first_name, last_name):
+    requested_pdf = get_object_or_404(Thesis, pk=pk)
+    requested_pdf.downloads += 1
+    requested_pdf.save()
+    title = requested_pdf.title
+    pdf_file_path = requested_pdf.pdf_file.name
+    pdf_file_path = pdf_file_path.split('.')
+    pdf_file_path = pdf_file_path[0] + '_water.' + pdf_file_path[1]
+    url_key = generate_random_key()
+    expiration_date = timezone.now() + timedelta(days=3)
+    pdf_file = TempURL.objects.create(
+        url_key=url_key,
+        title=title,
+        pdf_file=pdf_file_path,
+        expiration_date=expiration_date,
+        email = email,
+        first_name = first_name,
+        last_name = last_name
+    )
+
+def temp_url_redirect(request, url_key):
+    try:
+        temp_pdf = TempURL.objects.get(url_key=url_key)
+        if temp_pdf.is_expired():
+            raise Http404("This temporary PDF link has expired.")
+        pdf_file_path = temp_pdf.pdf_file.path
+        if os.path.exists(pdf_file_path):
+            return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf')
+        raise Http404("PDF file not found.")
+    except TempURL.DoesNotExist:
+        raise Http404("Temporary PDF URL does not exist.")
+
+def ThesisDownload(request, pk):
+    pass
+
+def ThesisRequestView(request, pk):
+    thesis = Thesis.objects.get(id=pk)
+    if request.method == 'POST':
+        form = RequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            generate_temp_url(pk, email, first_name, last_name)
+            messages.success(request, f'Thank you, {first_name}  {last_name}! Your request has been sent.')
+            return redirect('thesis_detail', pk=pk)
+        else:
+            messages.error(request, 'There was an error with your form submission. Please try again.')
+    else:
+        form = RequestForm()
+    return render(request,'thesis_request.html', {'form': form, 'thesis': thesis})
+
+class ThesisRequestListView(generic.ListView):
+    model = TempURL
+    template_name = 'request_list.html'
+    context_object_name = 'request_list'
+    #paginate_by = 10
+
+def RequestDetailView(request, pk):
+    thesis_request = get_object_or_404(TempURL, pk=pk)
+    if request.method == 'POST':
+        print(request.POST)
+        # Email content
+        subject = "Thesis Request"
+        message = "Good day! {} {}, your request for a PDF copy of the thesis titled {} has been accepted. DO NOT CLICK ON ANOTHER TAB UNTIL YOU HAVE CLICKED 'DOWNLOAD', IT WILL CLOSE!!! This link will expire in three days. http://127.0.0.1:8000/temp/pdf/{}".format(thesis_request.first_name, thesis_request.last_name, thesis_request.title, thesis_request.url_key)
+        recipient_list = [thesis_request.email]  # The recipient's email
+
+        # Send the email
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list,
+            fail_silently=False,
+        )
+        messages.success(request, "Request Acceptance Email has been sent to {}.".format(thesis_request.email))
+        return redirect('request_list')
+    return render(request, 'request_detail.html', {'thesis_request': thesis_request})
+
+def RequestReject(request, pk):
+    thesis_request = get_object_or_404(TempURL, pk=pk)
+    if request.method == 'POST':
+        print(request.POST)
+        return redirect('request_list')
+    return render(request, 'request_reject.html', {'thesis_request': thesis_request})
