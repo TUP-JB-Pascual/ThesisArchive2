@@ -18,7 +18,7 @@
         <a href="{% url 'thesis_delete' thesis.pk %}" class="btn btn-danger">Delete</a>
         {% endif %}
         {% if user.is_active %}
-        <a href="{% url 'thesis_download' thesis.pk %}" class="btn btn-success">Download</a>
+        <button id="downloadButton" class="btn btn-success">Download</button>
         {% else %}
         <a href="{% url 'thesis_request' thesis.pk %}" class="btn btn-success">Request Download</a>
         {% endif %}
@@ -31,4 +31,12 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            // Trigger the download by navigating to the Django URL
+            window.location.href = "{% url 'download' pdf=thesis.pdf_file.file %}";
+        });
+    </script>
+
 {% endblock %}

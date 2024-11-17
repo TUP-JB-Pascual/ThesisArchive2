@@ -17,7 +17,7 @@ from django.http import Http404
 from .models import TempURL
 from .forms import RequestForm
 
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.conf import settings
 
 User = get_user_model()
@@ -166,15 +166,33 @@ def temp_url_redirect(request, url_key):
         temp_pdf = TempURL.objects.get(url_key=url_key)
         if temp_pdf.is_expired():
             raise Http404("This temporary PDF link has expired.")
+        pdf_file_name = temp_pdf.pdf_file.name.split('_water')
+        pdf_file = "".join(pdf_file_name)
         pdf_file_path = temp_pdf.pdf_file.path
         if os.path.exists(pdf_file_path):
-            return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf')
+            thesis_obj = Thesis.objects.get(pdf_file=pdf_file)
+            context = {'thesis_title': thesis_obj.title, 'thesis_author': thesis_obj.author, 'pdf': pdf_file_path, 'temp_url': url_key}
+            return render(request, 'request_pdf.html', context)
+            #return render(request, 'thesis_detail.html', {'thesis': thesis, 'abstract_pdf_name': abstract_pdf_name})
+            #return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf')
         raise Http404("PDF file not found.")
     except TempURL.DoesNotExist:
         raise Http404("Temporary PDF URL does not exist.")
 
-def ThesisDownload(request, pk):
-    pass
+    # Link Expired OR Used OR DOES NOT EXIST
+    # Link Exist
+    # Alert window.onblur
+
+def ThesisDownload(request, pdf):
+    # Path to the PDF file
+    file_path = os.path.join(settings.MEDIA_ROOT, pdf)  # Use the path where your file is stored
+    # Open the file
+    with open(file_path, 'rb') as file:
+        # Create an HTTP response with the appropriate content type for PDF
+        response = HttpResponse(file.read(), content_type='application/pdf')
+        # Optionally, set the filename for the downloaded file
+        response['Content-Disposition'] = 'attachment; filename="thesis.pdf"'
+    return response
 
 def ThesisRequestView(request, pk):
     thesis = Thesis.objects.get(id=pk)
@@ -185,7 +203,7 @@ def ThesisRequestView(request, pk):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             generate_temp_url(pk, email, first_name, last_name)
-            messages.success(request, f'Thank you, {first_name}  {last_name}! Your request has been sent.')
+            messages.success(request, f'Thank you, {first_name} {last_name}! Your request has been sent.')
             return redirect('thesis_detail', pk=pk)
         else:
             messages.error(request, 'There was an error with your form submission. Please try again.')
@@ -199,12 +217,13 @@ class ThesisRequestListView(generic.ListView):
     context_object_name = 'request_list'
     #paginate_by = 10
 
+# ACCEPT
 def RequestDetailView(request, pk):
     thesis_request = get_object_or_404(TempURL, pk=pk)
     if request.method == 'POST':
         print(request.POST)
         # Email content
-        subject = "Thesis Request"
+        subject = "Thesis Request Approved"
         message = "Good day! {} {}, your request for a PDF copy of the thesis titled {} has been accepted. DO NOT CLICK ON ANOTHER TAB UNTIL YOU HAVE CLICKED 'DOWNLOAD', IT WILL CLOSE!!! This link will expire in three days. http://127.0.0.1:8000/temp/pdf/{}".format(thesis_request.first_name, thesis_request.last_name, thesis_request.title, thesis_request.url_key)
         recipient_list = [thesis_request.email]  # The recipient's email
 
@@ -217,6 +236,7 @@ def RequestDetailView(request, pk):
             fail_silently=False,
         )
         messages.success(request, "Request Acceptance Email has been sent to {}.".format(thesis_request.email))
+        #thesis_request.delete()
         return redirect('request_list')
     return render(request, 'request_detail.html', {'thesis_request': thesis_request})
 
@@ -224,5 +244,43 @@ def RequestReject(request, pk):
     thesis_request = get_object_or_404(TempURL, pk=pk)
     if request.method == 'POST':
         print(request.POST)
+        # Email content
+        subject = "Thesis Request Denied"
+        message = "Good day! {} {}, I'm sorry to inform you that your request for a PDF copy of the thesis titled {} has been rejected. Please re-submit a new request with correct information.".format(thesis_request.first_name, thesis_request.last_name, thesis_request.title)
+        recipient_list = [thesis_request.email]  # The recipient's email
+        # Send the email
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list,
+            fail_silently=False,
+        )
+        messages.success(request, "Request Rejection Email has been sent to {}.".format(thesis_request.email))
+        thesis_request.delete()
         return redirect('request_list')
     return render(request, 'request_reject.html', {'thesis_request': thesis_request})
+
+def window_blur_method(request, temp_url):
+    print(temp_url)
+    try:
+        temp_pdf = TempURL.objects.get(url_key=temp_url)
+        print(temp_pdf)
+        if request.method == 'POST':
+            # You can process any data sent from the client here
+            message = request.POST.get('message', 'No message')
+            print(f"Received message: {message}")
+            temp_pdf.delete()
+            # You can trigger other server-side actions here (e.g., logging, saving data, etc.)
+            # Returning a response to the client
+            return JsonResponse({'status': 'success', 'message': 'Method triggered successfully!'})
+        
+    except TempURL.DoesNotExist:
+        raise Http404("Temporary PDF URL does not exist.")
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method!'})
+
+#improvement
+    # Reason for rejection
+    # CRON - after some delay - do code -> DELETE -> APPROVE
+        # DELETE = date.today > expire -> DELETE (delay 7 days)
+        # APPROVE = date.today < expire -> APPROVE

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="col-md-6 offset-md-3" oncontextmenu="return false">
+        <hr>
+        <h3>{{ thesis_title }}</h3>
+        <small>by: {{ thesis_author.first_name }} {{ thesis_author.last_name }}</small>
+        <br>
+        <button id="downloadButton" class="btn btn-success">Download</button>
+        <br>
+        <hr>
+        <div class="wrapper">
+            <embed src="{% get_media_prefix %}{{ pdf }} #view=FitH&toolbar=0&navpanes=0" type="application/pdf" id="thesis_box" style="width: 100%;min-height: 500px;border: none;"></embed>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            // Trigger the download by navigating to the Django URL
+            window.location.href = "{% url 'download' pdf=pdf %}";
+        });
+    </script>
+
+<script>
+    // Event listener for window.blur
+    window.addEventListener('blur', function() {
+        // Make an AJAX request to Django when the window loses focus
+        $.ajax({
+            url: '{% url "window_blur_method" temp_url %}',  // The Django URL to trigger the method
+            type: 'POST',  // Use POST if you're modifying server-side data
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',  // CSRF token for security
+                'message': 'Window lost focus'  // Optional data you can send to the server
+            },
+            success: function(response) {
+                console.log("Django method triggered successfully!");
+            },
+            error: function(xhr, status, error) {
+                console.error("Error in AJAX request", error);
+            }
+        });
+    });
+</script>
+
+<script>
+    // Event listener for window.focus
+    window.addEventListener('focus', function() {
+        // Reload the page when the window gains focus
+        location.reload();
+    });
+</script>
+
+{% endblock %}

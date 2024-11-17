@@ -21,6 +21,8 @@ urlpatterns = [
     path('thesis/request_list/<int:pk>', views.RequestDetailView, name='request_view'),
     path('thesis/request_list/<int:pk>/reject', views.RequestReject, name='request_reject'),
     path('thesis/<int:pk>/download', views.ThesisDownload, name='thesis_download'),
+    path('download-pdf/<str:pdf>', views.ThesisDownload, name='download'),
+    path('window-blur/<str:temp_url>', views.window_blur_method, name='window_blur_method'),
 ]
 
 #USE ONLY ON DEVELOPMENT

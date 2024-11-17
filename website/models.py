@@ -62,7 +62,10 @@ def create_extra_pdf(sender, instance, created, *args, **kwargs):
 @receiver(post_delete, sender=Thesis)
 def delete_extra_pdf(sender, instance, *args, **kwargs):
     pdf_name = 'media/' + instance.pdf_file.name
-    print(pdf_name)
+    # FOR PDF
+    if os.path.exists(pdf_name):
+        os.remove(pdf_name)
+        print(pdf_name, "has been deleted.")
     # FOR ABSTRACT
     abstract_pdf_name = pdf_name.split('.')
     abstract_pdf_name = abstract_pdf_name[0] + '_abstract.' + abstract_pdf_name[1]
