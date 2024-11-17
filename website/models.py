@@ -18,7 +18,7 @@ def rename_pdf(instance, filename):
 
 class Thesis(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
-    published_date = models.DateField(null=True, blank=True)
+    published_date = models.DateField()
     title = models.TextField(max_length=255)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     pdf_file = models.FileField(upload_to=rename_pdf, max_length=256)
@@ -30,6 +30,23 @@ class Thesis(models.Model):
     
     def get_absolute_url(self):
         return reverse('thesis_detail', kwargs= {'pk': self.id})
+    
+    def generate_apa(self):
+        publisher = 'Technological University of the Philippines - Cavite'
+        url = 'website.com'
+        year = self.published_date.year
+        apa_citation = f"{self.author.last_name}, {self.author.first_name} ({year}). {self.title}. {publisher}."
+        apa_citation += f" Retrieved from {url}"
+        return apa_citation
+    
+    def generate_mla(self):
+        publisher = 'Technological University of the Philippines - Cavite'
+        url = 'website.com'
+        year = self.published_date.year
+        # MLA citation format: Author's Last Name, First Name. Title of Book. Publisher, Year of Publication.
+        mla_citation = f"{self.author.first_name} {self.author.last_name}. {self.title}. {publisher}, {year}."
+        mla_citation += f" Web. {year}. <{url}>"
+        return mla_citation
 
 @receiver(post_save, sender=Thesis)
 def create_extra_pdf(sender, instance, created, *args, **kwargs):

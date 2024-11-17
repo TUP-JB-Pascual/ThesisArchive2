@@ -4,10 +4,9 @@
     <div class="col-md-6 offset-md-3">
         <h1>Thesis Request List</h1>
         <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
+            <input class="form-control" type="text" placeholder="Search" aria-label="Search" id="searchBar">
           </form>
-        <table class="table">
+        <table class="table" id="dataTable">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -33,4 +32,39 @@
         </table>
     </div>
     
+    <script>
+        // Get the input field and table
+        const searchBar = document.getElementById('searchBar');
+        const table = document.getElementById('dataTable');
+        const tableRows = table.getElementsByTagName('tr');
+
+        // Add event listener to search bar
+        searchBar.addEventListener('input', function() {
+            const query = searchBar.value.toLowerCase();
+            
+            // Loop through all table rows
+            for (let i = 1; i < tableRows.length; i++) { // Start at 1 to skip the header row
+                const row = tableRows[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                // Loop through all columns in the row
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(query)) {
+                        matchFound = true;
+                        break; // No need to check further columns if match is found
+                    }
+                }
+
+                // Show/hide rows based on the search query
+                if (matchFound) {
+                    row.style.display = ''; // Show row
+                } else {
+                    row.style.display = 'none'; // Hide row
+                }
+            }
+        });
+    </script>
+
 {% endblock %}

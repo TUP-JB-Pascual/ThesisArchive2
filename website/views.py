@@ -72,7 +72,9 @@ def ThesisDetailView(request, pk):
     abstract_pdf_name = abstract_pdf_name[0] + '_abstract.' + abstract_pdf_name[1]
     thesis.visits += 1
     thesis.save()
-    return render(request, 'thesis_detail.html', {'thesis': thesis, 'abstract_pdf_name': abstract_pdf_name})
+    apa_citation = thesis.generate_apa()
+    mla_citation = thesis.generate_mla()
+    return render(request, 'thesis_detail.html', {'thesis': thesis, 'abstract_pdf_name': abstract_pdf_name, 'apa_citation':apa_citation, 'mla_citation':mla_citation})
 
 def ThesisUpdateView(request, pk):
     if request.user.is_authenticated:
