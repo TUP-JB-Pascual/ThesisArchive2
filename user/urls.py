@@ -8,12 +8,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('registration/', views.UserRegisterView.as_view(), name='user_registration'),
+    path('registration/', views.UserRegisterView, name='user_registration'),
+    path('verify-email/<str:uidb64>/<str:token>/', views.VerifyEmail, name='verify_email'),
     #path('login/', views.UserLoginView.as_view(), name='login'),
 ]
-
-#USE ONLY ON DEVELOPMENT
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-#USE ONLY ON DEVELOPMENT

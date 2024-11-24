@@ -25,3 +25,10 @@ class RegisterUserForm(UserCreationForm):
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
     
+        #self.fields['email'].widget.attrs['pattern'] = "[a-z.]*[@]\bgsfe.tupcavite.edu.ph"
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if "@gsfe.tupcavite.edu.ph" not in data:   # any check you need
+            raise forms.ValidationError("Must be a 'gsfe.tupcavite.edu.ph address")
+        return data

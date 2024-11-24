@@ -74,6 +74,7 @@ def ThesisDetailView(request, pk):
     thesis.save()
     apa_citation = thesis.generate_apa()
     mla_citation = thesis.generate_mla()
+    print(thesis.pdf_file)
     return render(request, 'thesis_detail.html', {'thesis': thesis, 'abstract_pdf_name': abstract_pdf_name, 'apa_citation':apa_citation, 'mla_citation':mla_citation})
 
 def ThesisUpdateView(request, pk):

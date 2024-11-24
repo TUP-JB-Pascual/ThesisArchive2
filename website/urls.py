@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include, re_path
 from . import views
+from django.views.static import serve
 
 #USE ONLY ON DEVELOPMENT
 from django.conf import settings
@@ -23,7 +24,11 @@ urlpatterns = [
     path('thesis/<int:pk>/download', views.ThesisDownload, name='thesis_download'),
     path('download-pdf/<str:pdf>', views.ThesisDownload, name='download'),
     path('window-blur/<str:temp_url>', views.window_blur_method, name='window_blur_method'),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
+
+
 
 #USE ONLY ON DEVELOPMENT
 if settings.DEBUG:
